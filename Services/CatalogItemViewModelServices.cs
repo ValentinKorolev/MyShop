@@ -1,24 +1,36 @@
-﻿using MyShop.Interfases;
+﻿using MyShop.ApplicationCore.Interfaces;
+using MyShop.Interfases;
 using MyShop.Models;
+using System.Data;
 
 namespace MyShop.Services
 {
     public sealed class CatalogItemViewModelServices : ICatalogItemViewModelServices
     {
         private readonly IRepository<CatalogItem> _catalogItemRepository;
-
-        public CatalogItemViewModelServices(IRepository<CatalogItem> catalogItemRepository)
+        private readonly IAppLogger<CatalogItemViewModelServices> _logger;
+        public CatalogItemViewModelServices(IRepository<CatalogItem> catalogItemRepository, IAppLogger<CatalogItemViewModelServices> logger)
         {
             _catalogItemRepository = catalogItemRepository;
+            _logger= logger;
         }
 
         public void UpdateCatalogItem(CatalogItemViewModel catalogItemViewModel)
         {
             var existingCatalogItem = _catalogItemRepository.GetById(catalogItemViewModel.Id);
-            if(existingCatalogItem is null) throw new Exception($"Catalog otem {catalogItemViewModel.Id} was not found");
+            if (existingCatalogItem is null)
+            {
+                var exception = new Exception($"Catalog otem {catalogItemViewModel.Id} was not found");
+                _logger.LogError(exception,exception.Message);
+                throw exception;
+            } 
 
             CatalogItem.CatalogItemDetails details = new(catalogItemViewModel.Name, catalogItemViewModel.Price);
             existingCatalogItem.UpdateDetails(details);
+
+            _logger.LogInformation($"Updaiting catalog item {existingCatalogItem.Id} " +
+                $"Name {existingCatalogItem.Name} " +
+                $"Price {existingCatalogItem.Price}");
             _catalogItemRepository.Update(existingCatalogItem);
 
         }
