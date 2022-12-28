@@ -1,4 +1,4 @@
-﻿namespace MyShop.Models
+﻿namespace MyShop.ApplicationCore.Entities
 {
     public sealed class CatalogItem
     {
@@ -16,7 +16,7 @@
             Name = name;
             Description = description;
             Price = price;
-            PictureUrl = pictureUrl;           
+            PictureUrl = pictureUrl;
         }
 
         public void UpdateDetails(CatalogItemDetails details)

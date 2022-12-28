@@ -1,5 +1,5 @@
-﻿using MyShop.Interfases;
-using MyShop.Models;
+﻿using MyShop.ApplicationCore.Entities;
+using MyShop.Interfases;
 
 namespace MyShop.Services
 {
