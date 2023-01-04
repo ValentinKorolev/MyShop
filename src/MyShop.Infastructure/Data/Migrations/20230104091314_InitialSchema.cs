@@ -46,7 +46,7 @@ namespace MyShop.Infastructure.Data.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PictureUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CatalogTypeId = table.Column<int>(type: "int", nullable: true),
+                    CatalogTypeId = table.Column<int>(type: "int", nullable: false),
                     CatalogBrandId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -62,7 +62,8 @@ namespace MyShop.Infastructure.Data.Migrations
                         name: "FK_CatalogItems_CatalogTypes_CatalogTypeId",
                         column: x => x.CatalogTypeId,
                         principalTable: "CatalogTypes",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
