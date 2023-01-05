@@ -13,7 +13,7 @@ MyShop.Infastructure.Dependencies.ConfigureServices(builder.Configuration, build
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddCoreServices();
-builder.Services.AddScoped(typeof(IRepository<CatalogItem>), typeof(EFRepository<CatalogItem>));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(EFRepository<>));
 builder.Services.AddScoped<ICatalogItemViewModelServices, CatalogItemViewModelServices>();
 
 var app = builder.Build();

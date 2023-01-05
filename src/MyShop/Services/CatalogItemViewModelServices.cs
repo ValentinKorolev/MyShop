@@ -1,4 +1,5 @@
-﻿using MyShop.ApplicationCore.Entities;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using MyShop.ApplicationCore.Entities;
 using MyShop.ApplicationCore.Interfaces;
 using MyShop.Interfases;
 using MyShop.Models;
@@ -10,16 +11,60 @@ namespace MyShop.Services
     {
         private readonly IRepository<CatalogItem> _catalogItemRepository;
         private readonly IAppLogger<CatalogItemViewModelServices> _logger;
-        public CatalogItemViewModelServices(IRepository<CatalogItem> catalogItemRepository, IAppLogger<CatalogItemViewModelServices> logger)
+        private readonly IRepository<CatalogBrand> _brandRepository;
+        private readonly IRepository<CatalogType> _typeRepository;
+        public CatalogItemViewModelServices(IRepository<CatalogItem> catalogItemRepository,
+            IAppLogger<CatalogItemViewModelServices> logger, 
+            IRepository<CatalogBrand> brandRepository,
+            IRepository<CatalogType> typeRepository)
         {
             _catalogItemRepository = catalogItemRepository;
-            _logger= logger;
+            _logger = logger;
+            _brandRepository = brandRepository;
+            _typeRepository = typeRepository;
         }
 
-        public async Task<IEnumerable<CatalogItemViewModel>> GetCatalogItems()
+        public async Task<IEnumerable<SelectListItem>> GetBrands()
+        {
+            _logger.LogInformation("Get Brands called");
+            var brands = await _brandRepository.GetAllAsync();
+
+            var items = brands
+                .Select(brand => new SelectListItem() { Value = brand.Id.ToString(), Text = brand.Brand})
+                .OrderBy(brand=>brand.Text)
+                .ToList();
+
+            var allItem = new SelectListItem() {Value =null, Text="All", Selected = true};
+
+            items.Insert(0, allItem);
+
+            return items;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetTypes()
+        {
+            _logger.LogInformation("Get Types called");
+            var types = await _typeRepository.GetAllAsync();
+
+            var items = types
+                .Select(types => new SelectListItem() { Value = types.Id.ToString(), Text = types.Type })
+                .OrderBy(types => types.Text)
+                .ToList();
+
+            var allItem = new SelectListItem() { Value = null, Text = "All", Selected = true };
+
+            items.Insert(0, allItem);
+
+            return items;
+        }
+
+        public async Task<CatalogIndexViewModel> GetCatalogItems(int? brandId, int? typedId)
         {
             var entities =await _catalogItemRepository.GetAllAsync();
-            var catalogItems = entities.Select(item => new CatalogItemViewModel()
+            var catalogItems = entities
+                .Where(item => (!brandId.HasValue || item.CatalogBrandId== brandId)
+                &&(!typedId.HasValue || item.CatalogTypeId ==typedId))
+                .Select(item => new CatalogItemViewModel()
             {
                 Id = item.Id,
                 Name = item.Name,
@@ -27,7 +72,14 @@ namespace MyShop.Services
                 Price = item.Price,
             }).ToList();
 
-            return catalogItems;
+            var vm = new CatalogIndexViewModel()
+            {
+                CatalogItems = catalogItems,
+                Brands = (await GetBrands()).ToList(),
+                Types = (await GetTypes()).ToList(),
+            };
+
+            return vm;
         }
 
         public void UpdateCatalogItem(CatalogItemViewModel catalogItemViewModel)

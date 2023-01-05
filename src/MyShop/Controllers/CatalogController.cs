@@ -20,10 +20,10 @@ namespace MyShop.Controllers
             _catalogItemViewModelServices = catalogItemViewModelServices;
             _catalogItemRepository = catalogItemRepository;
     }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(CatalogIndexViewModel viewModel)
         {
-            var catalogItemsViewModel = await _catalogItemViewModelServices.GetCatalogItems();
-           
+            var catalogItemsViewModel = await _catalogItemViewModelServices.GetCatalogItems(viewModel.BrandFilterApplied,viewModel.TypesFilterApplied);
+          
             return View(catalogItemsViewModel);
         }
 
